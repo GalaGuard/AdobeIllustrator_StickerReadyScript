@@ -1,0 +1,1 @@
+# AdobeIllustrator_StickerReadyScript
