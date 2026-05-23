@@ -14,7 +14,7 @@ function traceImage() {
         }
         var traceObj = item.trace().tracing //grabbing the trace object
         var traceOpt = traceObj.tracingOptions;
-        traceOpt.threshold = 210
+        traceOpt.threshold = 230
         traceOpt.tracingMode = TracingModeType.TRACINGMODEBLACKANDWHITE;
         traceOpt.ignoreWhite = true;
         item.tracingMethod = TracingMethodType.TRACINGMETHODABUTTING;
