@@ -1,6 +1,6 @@
 // MAIN
 var STROKE_WEIGHT = 1;
-var THRESHOLD = 210;
+var THRESHOLD = 240;
 var SCALE_SIZE = 100;
 stickerPrep(STROKE_WEIGHT, THRESHOLD, SCALE_SIZE);
 
@@ -28,66 +28,95 @@ function stickerPrep(threshold, offsetInches, scalePercent) {
     }
     
     var doc = app.activeDocument;
-    var sel = doc.selection;
-    var rasterAndTrace = [];
-    var copy = [];
+    var pairs = [];
     var contourPath = null;
     var XMLOffsetString = '<LiveEffect name="Adobe Offset Path">' + '<Dict data="R mlim 4 R ofst 3.6 I jntp 1 "/>' + '</LiveEffect>';
     var cutContour = findOrCreateCutContour(doc);
-    if (sel.length < 1) {
+    if (doc.selection.length < 1) {
         alert("Select at least 1 item");
         return;
     }
 
+    var liveSel = doc.selection;
+    var sources = [];
+    for (var i = 0; i < liveSel.length; i++) {
+        sources.push(liveSel[i]);
+    }
+    
     //Embed
-    for (var i = 0; i < doc.selection.length; i++) {
-        var item = sel[i];
+    for (var i = 0; i < sources.length; i++) {
+        var item = sources[i];
         if (item.typename !== "PlacedItem") {
             alert("Selected items must be PlacedItem, instead are " + item.typename);
             return;
         }
+        doc.selection = [item];
         item.embed();
-        rasterAndTrace.push(doc.selection[i]);
+        pairs.push({ trace: doc.selection[0], copy: null });
         if (scalePercent !== 100) {
-            rasterAndTrace[i].resize(scalePercent, scalePercent, undefined, undefined, undefined, undefined, undefined, Transformation.CENTER); //so many undefines...
+            pairs[i].trace.resize(scalePercent, scalePercent, undefined, undefined, undefined, undefined, undefined, Transformation.CENTER); //so many undefines...
         }
     }
-    for (var k = 0; k < rasterAndTrace.length; k++) {
-        copy.push(rasterAndTrace[k].duplicate());
+    for (var i = 0; i < pairs.length; i++) {
+        pairs[i].copy = pairs[i].trace.duplicate();
     }
 
-    //Trace
-    for (var i = 0; i < sel.length; i++) {
-        var item = rasterAndTrace[i];
+    //Trace and Unite
+    for (var i = 0; i < pairs.length; i++) {
+        var item = pairs[i].trace;
         var traceObj = item.trace().tracing //grabbing the trace object
         var traceOpt = traceObj.tracingOptions;
-        traceOpt.threshold = 230
+        traceOpt.threshold = THRESHOLD
         traceOpt.tracingMode = TracingModeType.TRACINGMODEBLACKANDWHITE;
         traceOpt.ignoreWhite = true;
-        item.tracingMethod = TracingMethodType.TRACINGMETHODABUTTING;
+        traceOpt.tracingMethod = TracingMethodType.TRACINGMETHODABUTTING;
         app.redraw();
-        rasterAndTrace[i] = traceObj.expandTracing();
+        pairs[i].trace = traceObj.expandTracing();
+
+        //These four lines I still have kinda no idea why this works in creating the silhouette I need
+        selectAndRunMenuCommand(doc, [pairs[i].trace], "noCompoundPath");
+        var released = doc.selection[0];
+        selectAndRunMenuCommand(doc, [released], "Live Pathfinder Merge");
+        var merge = doc.selection[0];
+        selectAndRunMenuCommand(doc, [merge], "Live Pathfinder Trim");
+        var trim = doc.selection[0];
+        selectAndRunMenuCommand(doc, [trim], "Live Pathfinder Add");
+        pairs[i].trace = doc.selection[0];
     }
 
+    
     //Add swatch and stroke and offset
-    for (var i = 0; i < rasterAndTrace.length; i++) {
-        var path = rasterAndTrace[i].pageItems[0];
-        applyCutContourStroke(path, cutContour, STROKE_WEIGHT); 
-        path.applyEffect(XMLOffsetString);
-        doc.selection = [path]
+    for (var i = 0; i < pairs.length; i++) {
+        var units = [];
+        var src = pairs[i].trace.pageItems;
+        for (var s = 0; s < src.length; s++) {
+            units.push(src[s]);
+        }
+
+        for (var j = 0; j < units.length; j++) {
+            var path = units[j];
+            applyCutContourStroke(path, cutContour, STROKE_WEIGHT);
+            path.applyEffect(XMLOffsetString);
+            doc.selection = [path];
+        }
         app.executeMenuCommand("expandStyle");
     }
-
+    
     //Create clipping mask
-    for (var i = 0; i < rasterAndTrace.length; i++) {
-        var contour = rasterAndTrace[i].pageItems[0];
-        contour.move(rasterAndTrace[i].parent, ElementPlacement.PLACEATBEGINNING);
-        var image = copy[i]
-        image.zOrder(ZOrderMethod.SENDTOBACK);
-        contour.zOrder(ZOrderMethod.BRINGTOFRONT);
-        selectAndRunMenuCommand(doc, [contour, image], "makeMask");
-        applyCutContourStroke(contour, cutContour, STROKE_WEIGHT);
+    for (var i = 0; i < pairs.length; i++) {
+        var contour = pairs[i].trace.pageItems[0];
+        var image = pairs[i].copy;
+        contour.move(image.parent, ElementPlacement.PLACEATBEGINNING);
+        doc.selection = [contour, image];
+
+        app.executeMenuCommand("makeMask");
+        var mask = doc.selection[0].pageItems[0];
+        if (mask.typename == "CompoundPathItem") {
+            mask = mask.pathItems[0];
+        }
+        applyCutContourStroke(mask, cutContour, STROKE_WEIGHT);
     }
+    app.executeMenuCommand("expandStyle");
 }
 
 /** Runs a menu command
