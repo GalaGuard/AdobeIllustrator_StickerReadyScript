@@ -1,6 +1,6 @@
 # UCSC Slugworks Printer-Cutter Ready Script 
 
-A script that given any raster image inputted in Adobe Illustrator, creates a cut contour and prepares an image for sticker printing. 
+A script that given any raster image inputted in Adobe Illustrator, creates a cut contour and prepares an image for sticker printing, allowing for further minor adjustments to the path if needed (simplfying vector path, etc). 
 
 Specifically made for UCSC students working with the Roland BN20A print-cut printer
 
@@ -38,6 +38,7 @@ I'm [GalaGuard](https://github.com/GalaGuard), a CS student at UCSC and a digita
     - Threshold: For image trace
     - Offset: For the offset of the cut contour path
     - Scale: size of the image in inches
+5. Your image(s) will be processed where you can edit/smoothen the vector path
 
 <img src="./READMEDocuments/selex.gif" width="60%" height = "60%"> 
 
