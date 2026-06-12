@@ -18,7 +18,7 @@ I'm [GalaGuard](https://github.com/GalaGuard), a CS student at UCSC and a digita
 
 **Simply access the "Script" dropdown from "File" or press CTRL + F12 and select the script file**
 
-<img src="./READMEDocuments/examplegif.gif" width="70%" height = "70%">
+<img src="./READMEDocuments/examplegif.gif" width="100%" height = "100%">
 
 
 ## Installation
