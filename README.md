@@ -1,4 +1,4 @@
-# UCSC Slugworks Adobe Illustrator Print-Ready Script 
+# UCSC Slugworks Printer-Cutter Ready Script 
 
 A script that given any raster image inputted in Adobe Illustrator, creates a cut contour and prepares an image for sticker printing. 
 
