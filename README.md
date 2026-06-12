@@ -18,7 +18,7 @@ I'm [GalaGuard](https://github.com/GalaGuard), a CS student at UCSC and a digita
 
 **Simply access the "Script" dropdown from "File" or press CTRL + F12 and select the script file**
 
-<img src="./READMEDocuments/examplegif.gif" width="50%" height = "50%">
+<img src="./READMEDocuments/examplegif.gif" width="70%" height = "70%">
 
 
 ## Installation
@@ -39,8 +39,8 @@ I'm [GalaGuard](https://github.com/GalaGuard), a CS student at UCSC and a digita
     - Offset: For the offset of the cut contour path
     - Scale: size of the image in inches
 
-<img src="./READMEDocuments/selex.gif" width="40%" height = "40%"> 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<img src="./READMEDocuments/selex.gif" width="60%" height = "60%"> 
+
 <img src="./READMEDocuments/UI.png" width="40%" height = "40%">
 
 ## Contributing
